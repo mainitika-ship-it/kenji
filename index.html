@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0f6b5d" />
+  <title>写真で補修部品相談｜ホシ姫サマ実証版</title>
+  <meta name="description" content="写真4枚と簡単な質問だけで、壊れた補修部品の相談内容を整理します。" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="hero">
+    <div class="wrap">
+      <p class="eyebrow">ホシ姫サマで試す、やさしい補修部品窓口</p>
+      <h1>写真を送るように、<br />修理部品を相談する。</h1>
+      <p class="lead">図面・材質・部品名は分からなくて大丈夫です。写真4枚と、分かる範囲の質問だけで相談整理票を作ります。</p>
+      <div class="promise" role="note">
+        <strong>この実証版は外部送信しません。</strong>
+        <span>写真は端末内でプレビューされ、入力内容はこの端末に一時保存されます。</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap main-stack">
+    <nav class="progress" aria-label="入力の進み具合">
+      <button class="progress-step is-active" type="button" data-goto="photos"><span>1</span>写真</button>
+      <button class="progress-step" type="button" data-goto="details"><span>2</span>状況</button>
+      <button class="progress-step" type="button" data-goto="review"><span>3</span>確認</button>
+    </nav>
+
+    <form id="repair-form" novalidate>
+      <section id="photos" class="card form-section" aria-labelledby="photos-title">
+        <div class="section-heading">
+          <div>
+            <p class="step-label">STEP 1</p>
+            <h2 id="photos-title">まず写真を4枚</h2>
+          </div>
+          <span class="required-chip">最低2枚</span>
+        </div>
+        <p class="section-copy">同じ角度ではなく、全体・壊れた部分・取付場所・大きさが分かる写真を撮ります。</p>
+
+        <div class="photo-grid">
+          <label class="photo-slot">
+            <input type="file" name="photo-overall" accept="image/*" capture="environment" data-photo="製品全体" />
+            <span class="photo-number">1</span>
+            <strong>製品全体</strong>
+            <small>どの製品か分かる距離</small>
+            <img alt="製品全体の写真プレビュー" hidden />
+            <span class="photo-action">撮影・選択</span>
+          </label>
+          <label class="photo-slot">
+            <input type="file" name="photo-broken" accept="image/*" capture="environment" data-photo="壊れた部分" />
+            <span class="photo-number">2</span>
+            <strong>壊れた部分</strong>
+            <small>割れ・欠け・摩耗を近くから</small>
+            <img alt="壊れた部分の写真プレビュー" hidden />
+            <span class="photo-action">撮影・選択</span>
+          </label>
+          <label class="photo-slot">
+            <input type="file" name="photo-mounted" accept="image/*" capture="environment" data-photo="取付場所" />
+            <span class="photo-number">3</span>
+            <strong>取付場所</strong>
+            <small>どこに、どう付くか</small>
+            <img alt="取付場所の写真プレビュー" hidden />
+            <span class="photo-action">撮影・選択</span>
+          </label>
+          <label class="photo-slot">
+            <input type="file" name="photo-scale" accept="image/*" capture="environment" data-photo="大きさ比較" />
+            <span class="photo-number">4</span>
+            <strong>大きさ比較</strong>
+            <small>定規や硬貨を横に置く</small>
+            <img alt="大きさ比較の写真プレビュー" hidden />
+            <span class="photo-action">撮影・選択</span>
+          </label>
+        </div>
+
+        <div class="inline-tip">
+          <strong>部品を外せない場合</strong>
+          <span>無理に外さず、取付状態のまま複数方向から撮影してください。</span>
+        </div>
+
+        <div class="section-actions">
+          <button class="primary" type="button" data-next="details">写真の次へ</button>
+        </div>
+      </section>
+
+      <section id="details" class="card form-section" aria-labelledby="details-title">
+        <div class="section-heading">
+          <div>
+            <p class="step-label">STEP 2</p>
+            <h2 id="details-title">分かることだけ教えてください</h2>
+          </div>
+          <span class="optional-chip">不明でも可</span>
+        </div>
+
+        <div class="field-grid two">
+          <label class="field">
+            <span>製品名</span>
+            <input type="text" name="productName" autocomplete="off" placeholder="例：ホシ姫サマ" />
+          </label>
+          <label class="field">
+            <span>型番</span>
+            <input type="text" name="modelNumber" autocomplete="off" placeholder="本体ラベルの文字。空欄でも可" />
+          </label>
+        </div>
+
+        <label class="field">
+          <span>どのように壊れましたか？ <b aria-hidden="true">*</b></span>
+          <textarea name="problem" rows="4" required placeholder="例：ワイヤーを巻く樹脂部分が割れ、空回りします。欠けた破片は残っています。"></textarea>
+        </label>
+
+        <label class="field">
+          <span>作ってほしい物・直したい状態</span>
+          <textarea name="desiredOutcome" rows="3" placeholder="例：元と同じ位置にボルトで取り付け、洗濯物を上下できるようにしたい。"></textarea>
+        </label>
+
+        <fieldset class="choice-group">
+          <legend>どこで使いますか？</legend>
+          <div class="choice-grid">
+            <label><input type="checkbox" name="environment" value="室内" /><span>室内</span></label>
+            <label><input type="checkbox" name="environment" value="直射日光" /><span>直射日光</span></label>
+            <label><input type="checkbox" name="environment" value="屋外・雨" /><span>屋外・雨</span></label>
+            <label><input type="checkbox" name="environment" value="車内" /><span>車内</span></label>
+            <label><input type="checkbox" name="environment" value="高温付近" /><span>高温付近</span></label>
+            <label><input type="checkbox" name="environment" value="水回り" /><span>水回り</span></label>
+          </div>
+        </fieldset>
+
+        <fieldset class="choice-group">
+          <legend>部品にかかる力を、近いものから選択</legend>
+          <div class="choice-grid">
+            <label><input type="radio" name="load" value="ほぼ力はかからない" /><span>ほぼ力なし</span></label>
+            <label><input type="radio" name="load" value="手で押す・回す" /><span>手で押す・回す</span></label>
+            <label><input type="radio" name="load" value="物を支える・引っ張る" /><span>物を支える</span></label>
+            <label><input type="radio" name="load" value="分からない" /><span>分からない</span></label>
+          </div>
+        </fieldset>
+
+        <fieldset class="risk-box">
+          <legend>安全確認</legend>
+          <p>当てはまるものがありますか？ 該当しても相談できますが、慎重な確認が必要です。</p>
+          <label><input type="checkbox" name="risk" value="頭上で重量物を支える" />頭上で重量物を支える</label>
+          <label><input type="checkbox" name="risk" value="走行・制動・操舵に関係する" />車・自転車の走行、ブレーキ、ハンドルに関係する</label>
+          <label><input type="checkbox" name="risk" value="100V以上・発熱・充電端子付近" />100V以上、発熱部、充電端子の近く</label>
+          <label><input type="checkbox" name="risk" value="人の転落・挟まれにつながる" />壊れると人の転落や挟まれにつながる</label>
+          <label><input type="checkbox" name="risk" value="該当なし" data-exclusive />該当なし</label>
+        </fieldset>
+
+        <label class="field">
+          <span>元の部品を郵送できますか？</span>
+          <select name="shippingOriginal">
+            <option value="未回答">選択してください</option>
+            <option value="郵送できる">郵送できる</option>
+            <option value="外せない">外せない</option>
+            <option value="紛失した">紛失した</option>
+            <option value="相談して決めたい">相談して決めたい</option>
+          </select>
+        </label>
+
+        <div class="section-actions split">
+          <button class="secondary" type="button" data-back="photos">写真へ戻る</button>
+          <button class="primary" type="button" data-next="review">確認へ進む</button>
+        </div>
+      </section>
+
+      <section id="review" class="card form-section" aria-labelledby="review-title">
+        <div class="section-heading">
+          <div>
+            <p class="step-label">STEP 3</p>
+            <h2 id="review-title">相談整理票</h2>
+          </div>
+          <span id="draft-status" class="saved-chip">下書き</span>
+        </div>
+
+        <div id="validation-message" class="validation-message" role="alert" hidden></div>
+        <div id="risk-result" class="risk-result" hidden></div>
+        <article id="summary" class="summary" aria-live="polite"></article>
+
+        <div class="review-note">
+          <strong>まだ注文・製造は始まりません。</strong>
+          <span>この内容を人が確認し、作れそうか・追加で何を測るか・概算費用を返す流れを想定しています。</span>
+        </div>
+
+        <div class="section-actions action-stack">
+          <button class="primary" type="button" id="copy-summary">相談内容をコピー</button>
+          <button class="secondary" type="button" id="email-draft">メール下書きを開く</button>
+          <button class="ghost" type="button" id="download-json">整理票を保存（JSON）</button>
+          <button class="danger-link" type="button" id="reset-form">入力をすべて消す</button>
+        </div>
+      </section>
+    </form>
+
+    <section class="card next-stage">
+      <p class="step-label">この先に作る仕組み</p>
+      <h2>注文から製造まで、少しずつ自動化</h2>
+      <ol>
+        <li><strong>受付：</strong>写真と質問をAIが整理</li>
+        <li><strong>設計：</strong>不足寸法を矢印入り画像で案内</li>
+        <li><strong>承認：</strong>設計・材料・価格を人が確認</li>
+        <li><strong>製造：</strong>承認済み3MFを呼び出し、印刷開始だけGO確認</li>
+        <li><strong>資産化：</strong>製造カルテと商品番号を保存し、次回は受注生産</li>
+      </ol>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="wrap">
+      <p>実証テーマ：メーカー供給が終わった小さな樹脂部品を、必要な人へ分かりやすく届ける。</p>
+    </div>
+  </footer>
+
+  <script src="app.js" defer></script>
+</body>
+</html>
