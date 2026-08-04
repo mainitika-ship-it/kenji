@@ -1,0 +1,46 @@
+name: 改善案・相談
+description: 使いにくい点、改善案、部品相談の仕組みについて伝えるための公開フォームです。
+title: "[相談] "
+labels:
+  - consultation
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ご連絡ありがとうございます。専門用語は必要ありません。分かる範囲の言葉で大丈夫です。
+
+        このフォームは一般公開されます。氏名、住所、電話番号、メールアドレス、注文番号、顔や住所が写った写真などは書かないでください。公開できない内容は「個人情報や非公開情報を含む相談」の窓口をご利用ください。
+  - type: dropdown
+    id: kind
+    attributes:
+      label: 相談の種類
+      options:
+        - 画面や操作について
+        - 説明の分かりやすさについて
+        - 修理・補修部品の相談方法について
+        - 安全性について
+        - その他
+    validations:
+      required: true
+  - type: textarea
+    id: situation
+    attributes:
+      label: 困ったこと・気づいたこと
+      description: 個人を特定できる情報を除き、起きたことをそのまま書いてください。
+      placeholder: 例：写真を選んだ後、次に押す場所が分かりませんでした。
+    validations:
+      required: true
+  - type: textarea
+    id: hope
+    attributes:
+      label: こうなると嬉しいこと
+      description: 決まった案がなくても大丈夫です。
+  - type: checkboxes
+    id: privacy
+    attributes:
+      label: 公開前の確認
+      options:
+        - label: 個人情報、連絡先、注文情報、公開できない写真を含めていません。
+          required: true
+        - label: 返答や採用に時間がかかる場合や、提案が採用されない場合があることを理解しました。
+          required: true
