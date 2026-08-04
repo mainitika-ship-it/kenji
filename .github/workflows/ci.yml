@@ -1,0 +1,30 @@
+name: Check repair intake prototype
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: JavaScript syntax
+        run: node --check app.js
+      - name: Required files and UI hooks
+        run: |
+          test -f index.html
+          test -f styles.css
+          test -f app.js
+          grep -q 'id="repair-form"' index.html
+          grep -q 'id="summary"' index.html
+          grep -q 'data-photo="製品全体"' index.html
+          grep -q 'localStorage' app.js
+          grep -q 'consultationText' app.js
