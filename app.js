@@ -2,6 +2,7 @@
   'use strict';
 
   const STORAGE_KEY = 'repair-intake-hoshihime-v1';
+  const CONSULTATIONS_KEY = 'repair-intake-hoshihime-consultations-v1';
   const form = document.querySelector('#repair-form');
   const sections = [...document.querySelectorAll('.form-section')];
   const progressButtons = [...document.querySelectorAll('.progress-step')];
@@ -10,6 +11,7 @@
   const riskResult = document.querySelector('#risk-result');
   const validationMessage = document.querySelector('#validation-message');
   const draftStatus = document.querySelector('#draft-status');
+  const consultationList = document.querySelector('#consultation-list');
   const objectUrls = new Map();
 
   let consultationId = createConsultationId();
@@ -89,6 +91,86 @@
     }, 1800);
   }
 
+  function readConsultations() {
+    try {
+      const items = JSON.parse(localStorage.getItem(CONSULTATIONS_KEY) || '[]');
+      return Array.isArray(items) ? items : [];
+    } catch (error) {
+      console.warn('保存済み相談を読み込めませんでした。', error);
+      return [];
+    }
+  }
+
+  function writeConsultations(items) {
+    localStorage.setItem(CONSULTATIONS_KEY, JSON.stringify(items));
+  }
+
+  function formatSavedDate(value) {
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return '日時不明';
+    return new Intl.DateTimeFormat('ja-JP', {
+      year: 'numeric', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit'
+    }).format(date);
+  }
+
+  function renderConsultationList() {
+    const items = readConsultations().sort((a, b) => String(b.updatedAt).localeCompare(String(a.updatedAt)));
+    if (!items.length) {
+      consultationList.innerHTML = '<p class="consultation-empty">まだ登録された相談はありません。</p>';
+      return;
+    }
+
+    consultationList.innerHTML = items.map((item) => `
+      <article class="consultation-item">
+        <div>
+          <strong>${escapeHtml(item.productName || '製品名未入力')}</strong>
+          <span>${escapeHtml(item.consultationId)}</span>
+          <small>更新：${escapeHtml(formatSavedDate(item.updatedAt))}</small>
+        </div>
+        <div class="consultation-actions">
+          <button class="secondary compact-button" type="button" data-open-consultation="${escapeHtml(item.consultationId)}">開く</button>
+          <button class="danger-compact" type="button" data-delete-consultation="${escapeHtml(item.consultationId)}">削除</button>
+        </div>
+      </article>
+    `).join('');
+  }
+
+  function clearPhotoPreviews() {
+    objectUrls.forEach((url) => URL.revokeObjectURL(url));
+    objectUrls.clear();
+    photoInputs.forEach((input) => { input.value = ''; });
+    document.querySelectorAll('.photo-slot').forEach((slot) => {
+      slot.classList.remove('has-image');
+      const image = slot.querySelector('img');
+      image.hidden = true;
+      image.removeAttribute('src');
+    });
+  }
+
+  function applyConsultationData(data) {
+    form.reset();
+    clearPhotoPreviews();
+    consultationId = data.consultationId || createConsultationId();
+    ['productName', 'modelNumber', 'problem', 'desiredOutcome', 'shippingOriginal'].forEach((name) => {
+      const field = form.elements.namedItem(name);
+      if (field && typeof data[name] === 'string') field.value = data[name];
+    });
+
+    [...(data.environment || [])].forEach((value) => {
+      const input = [...form.querySelectorAll('[name="environment"]')].find((item) => item.value === value);
+      if (input) input.checked = true;
+    });
+    if (data.load) {
+      const input = [...form.querySelectorAll('[name="load"]')].find((item) => item.value === data.load);
+      if (input) input.checked = true;
+    }
+    [...(data.risk || [])].forEach((value) => {
+      const input = [...form.querySelectorAll('[name="risk"]')].find((item) => item.value === value);
+      if (input) input.checked = true;
+    });
+    renderSummary();
+  }
+
   function scheduleSave() {
     draftStatus.textContent = '保存中…';
     clearTimeout(saveTimer);
@@ -101,26 +183,7 @@
 
     try {
       const data = JSON.parse(raw);
-      consultationId = data.consultationId || consultationId;
-      ['productName', 'modelNumber', 'problem', 'desiredOutcome', 'shippingOriginal'].forEach((name) => {
-        const field = form.elements.namedItem(name);
-        if (field && typeof data[name] === 'string') field.value = data[name];
-      });
-
-      [...(data.environment || [])].forEach((value) => {
-        const input = [...form.querySelectorAll('[name="environment"]')].find((item) => item.value === value);
-        if (input) input.checked = true;
-      });
-
-      if (data.load) {
-        const input = [...form.querySelectorAll('[name="load"]')].find((item) => item.value === data.load);
-        if (input) input.checked = true;
-      }
-
-      [...(data.risk || [])].forEach((value) => {
-        const input = [...form.querySelectorAll('[name="risk"]')].find((item) => item.value === value);
-        if (input) input.checked = true;
-      });
+      applyConsultationData(data);
 
       draftStatus.textContent = '前回の下書きを復元';
       setTimeout(() => { draftStatus.textContent = '下書き'; }, 2200);
@@ -293,6 +356,61 @@
     showToast('整理票を保存しました');
   }
 
+  function saveConsultation() {
+    if (!validateAndShow()) {
+      gotoSection('review');
+      showToast('不足項目を確認してください');
+      return;
+    }
+    const data = serializableData();
+    data.photos = data.photos.map(({ label, selected, fileName }) => ({ label, selected, fileName }));
+    const items = readConsultations();
+    const existingIndex = items.findIndex((item) => item.consultationId === data.consultationId);
+    if (existingIndex >= 0) items[existingIndex] = data;
+    else items.push(data);
+    writeConsultations(items);
+    saveDraft();
+    renderConsultationList();
+    showToast(existingIndex >= 0 ? '相談を更新しました' : '相談を登録しました');
+  }
+
+  function startNewConsultation() {
+    const confirmed = window.confirm('新しい相談を始めます。現在の入力を登録していない場合は失われます。よろしいですか？');
+    if (!confirmed) return;
+    form.reset();
+    clearPhotoPreviews();
+    localStorage.removeItem(STORAGE_KEY);
+    consultationId = createConsultationId();
+    validationMessage.hidden = true;
+    draftStatus.textContent = '新しい下書き';
+    renderSummary();
+    gotoSection('photos');
+    showToast('新しい相談を開始しました');
+  }
+
+  function openConsultation(id) {
+    const item = readConsultations().find((consultation) => consultation.consultationId === id);
+    if (!item) {
+      showToast('相談が見つかりません');
+      renderConsultationList();
+      return;
+    }
+    applyConsultationData(item);
+    saveDraft();
+    gotoSection('details');
+    showToast('相談を開きました。写真は再選択してください');
+  }
+
+  function deleteConsultation(id) {
+    const item = readConsultations().find((consultation) => consultation.consultationId === id);
+    if (!item) return;
+    const name = item.productName || item.consultationId;
+    if (!window.confirm(`「${name}」を保存済み一覧から削除します。よろしいですか？`)) return;
+    writeConsultations(readConsultations().filter((consultation) => consultation.consultationId !== id));
+    renderConsultationList();
+    showToast('保存済み相談を削除しました');
+  }
+
   function showToast(message) {
     let toast = document.querySelector('.toast');
     if (!toast) {
@@ -313,14 +431,7 @@
     form.reset();
     localStorage.removeItem(STORAGE_KEY);
     consultationId = createConsultationId();
-    objectUrls.forEach((url) => URL.revokeObjectURL(url));
-    objectUrls.clear();
-    document.querySelectorAll('.photo-slot').forEach((slot) => {
-      slot.classList.remove('has-image');
-      const image = slot.querySelector('img');
-      image.hidden = true;
-      image.removeAttribute('src');
-    });
+    clearPhotoPreviews();
     validationMessage.hidden = true;
     renderSummary();
     gotoSection('photos');
@@ -378,7 +489,15 @@
   document.querySelector('#copy-summary').addEventListener('click', copySummary);
   document.querySelector('#email-draft').addEventListener('click', openEmailDraft);
   document.querySelector('#download-json').addEventListener('click', downloadJson);
+  document.querySelector('#save-consultation').addEventListener('click', saveConsultation);
+  document.querySelector('#new-consultation').addEventListener('click', startNewConsultation);
   document.querySelector('#reset-form').addEventListener('click', resetAll);
+  consultationList.addEventListener('click', (event) => {
+    const openButton = event.target.closest('[data-open-consultation]');
+    if (openButton) openConsultation(openButton.dataset.openConsultation);
+    const deleteButton = event.target.closest('[data-delete-consultation]');
+    if (deleteButton) deleteConsultation(deleteButton.dataset.deleteConsultation);
+  });
 
   const observer = new IntersectionObserver((entries) => {
     const visible = entries
@@ -390,5 +509,6 @@
   sections.forEach((section) => observer.observe(section));
 
   restoreDraft();
+  renderConsultationList();
   renderSummary();
 })();
