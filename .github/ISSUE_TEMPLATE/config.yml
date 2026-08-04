@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 個人情報や非公開情報を含む相談
+    url: https://github.com/mainitika-ship-it/kenji/security/advisories/new
+    about: 氏名、住所、連絡先、注文情報、未公開の写真などは公開Issueへ書かず、非公開の窓口を使ってください。

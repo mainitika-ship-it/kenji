@@ -1,0 +1,42 @@
+name: 不具合の報告
+description: 画面が動かない、表示がおかしいなどの問題を知らせる公開フォームです。
+title: "[不具合] "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ご報告ありがとうございます。この内容は一般公開されます。個人情報、連絡先、注文情報、公開できない写真は書かないでください。
+  - type: textarea
+    id: problem
+    attributes:
+      label: 起きたこと
+      placeholder: 例：「相談整理票を作る」を押しても画面が変わりません。
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: 直前に行った操作
+      description: 覚えている範囲で順番に書いてください。
+  - type: dropdown
+    id: device
+    attributes:
+      label: 使用した端末
+      options:
+        - iPhone
+        - iPad
+        - Android
+        - Mac
+        - Windows
+        - その他・不明
+    validations:
+      required: true
+  - type: checkboxes
+    id: privacy
+    attributes:
+      label: 公開前の確認
+      options:
+        - label: 個人情報や公開できない写真を含めていません。
+          required: true
