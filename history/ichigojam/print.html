@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>親子ではじめるIchigoJamゲームづくり｜印刷用</title>
+<style>
+  @page{size:A4;margin:12mm}
+  :root{font-family:"Noto Sans JP","Yu Gothic","Hiragino Sans",sans-serif;color:#293338}
+  *{box-sizing:border-box}
+  body{margin:0;background:#eee}
+  .page{position:relative;width:210mm;min-height:297mm;margin:0 auto 10mm;padding:16mm 17mm;background:#fff;page-break-after:always;overflow:hidden}
+  .page:last-child{page-break-after:auto}
+  .berry{color:#b82f4b}.green{color:#357c4b}.muted{color:#647278}
+  h1{font-size:30pt;line-height:1.2;margin:12mm 0 5mm;letter-spacing:-.04em}
+  h2{font-size:21pt;margin:0 0 6mm;line-height:1.25}
+  h3{font-size:14pt;margin:4mm 0 2mm}
+  p,li{font-size:12pt;line-height:1.75}
+  .tag{display:inline-block;padding:2.5mm 4mm;border-radius:99px;background:#fff0f3;color:#a52640;font-weight:700}
+  .hero-box{margin-top:16mm;padding:10mm;border-radius:8mm;background:linear-gradient(145deg,#fff6d8,#fff0f3 55%,#eaf8ee)}
+  .story{display:grid;grid-template-columns:1fr 1fr;gap:5mm;margin-top:10mm}
+  .story div{padding:5mm;border:1px solid #eaded4;border-radius:5mm;background:#fffdf8;font-size:12pt}
+  .story b{display:block;color:#a52640;margin-top:2mm}
+  .note{padding:5mm;border-radius:5mm;background:#fff3d8;border:1px solid #edcf7d}
+  code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-weight:700}
+  .code{margin:4mm 0;padding:6mm;border-radius:5mm;background:#222a2d;color:#fff;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12pt;line-height:1.62;white-space:pre}
+  .checkline{display:grid;grid-template-columns:8mm 1fr;gap:2mm;margin:1.5mm 0;font-size:11.5pt}
+  .box{width:5mm;height:5mm;border:1.2pt solid #555;margin-top:1.4mm}
+  .tip{padding:5mm;border-radius:5mm;background:#eaf6ff;border-left:4mm solid #64a8d1}
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:6mm}
+  .write{height:38mm;border:1px solid #bcb3aa;border-radius:4mm;background:repeating-linear-gradient(#fff,#fff 9mm,#e8e2dc 9.3mm)}
+  .certificate{margin-top:8mm;padding:10mm;border:2mm double #e7b9c4;border-radius:7mm;text-align:center}
+  .certificate h2{font-size:25pt;color:#b82f4b}
+  .line{display:inline-block;min-width:80mm;border-bottom:1px solid #555;height:8mm}
+  .footer{position:absolute;left:17mm;right:17mm;bottom:8mm;display:flex;justify-content:space-between;color:#7b8589;font-size:9pt}
+  .small{font-size:9.5pt;line-height:1.5}
+  @media print{body{background:#fff}.page{margin:0}}
+</style>
+</head>
+<body>
+<section class="page">
+  <span class="tag">🍓 親子の学びの記録</span>
+  <div class="hero-box">
+    <h1>IchigoJamで<br><span class="berry">はじめてのゲームづくり</span></h1>
+    <p>遊ぶだけだったゲームが、<br><b>「数字を変える」「自分で作る」</b>へ変わった日の本です。</p>
+    <p class="green"><b>2026年8月5日</b></p>
+  </div>
+  <div class="story">
+    <div>🟩<b>見つけた</b>小さな基板にワクワク。</div>
+    <div>📺<b>つないだ</b>テレビへ映す方法を確認。</div>
+    <div>🎮<b>遊んだ</b>弾よけゲームに夢中。</div>
+    <div>💡<b>作りたくなった</b>自分で変えてみたい。</div>
+  </div>
+  <div class="footer"><span>親子ではじめるIchigoJam</span><span>1 / 5</span></div>
+</section>
+
+<section class="page">
+  <h2>1　まずは9行のゲーム</h2>
+  <div class="note">
+    <b>今の弾よけゲームを残したいとき</b><br>
+    ① <code>FILES</code>　② 空き番号を大人と確認　③ <code>SAVE 番号</code><br>
+    <span class="small">分からないときは、まだ <code>NEW</code> を入力しません。</span>
+  </div>
+  <h3>反応そくどゲーム</h3>
+  <p>1行ずつ入力して <b>Enter</b>。全部できたら <b>RUN</b>。</p>
+  <div class="code">10 CLS:?"READY..."
+20 WAIT 60+RND(180)
+30 CLK
+40 CLS:?"GO!":CLT
+50 IF INKEY()=0 GOTO 50
+60 T=TICK()
+70 CLS:?"TIME=";T
+80 BEEP 10,10
+90 END</div>
+  <div class="checkline"><span class="box"></span><span>READY... が出た</span></div>
+  <div class="checkline"><span class="box"></span><span>GO! が出た</span></div>
+  <div class="checkline"><span class="box"></span><span>キーを押すと TIME=数字 が出た</span></div>
+  <div class="tip"><b>自分で変える：</b>20行の <code>180</code> を大きくすると、GO!を待つ時間が長くなります。</div>
+  <div class="footer"><span>1行入力したらEnter</span><span>2 / 5</span></div>
+</section>
+
+<section class="page">
+  <h2>2　オリジナルゲーム<br><span class="berry">「いちごキャッチ」前半</span></h2>
+  <p>← → で「U」を動かし、落ちてくる「O」を受け止めます。</p>
+  <div class="code">10 CLS:X=15:S=0:H=3
+20 A=RND(32):Y=1
+30 LOCATE A,Y:?"O"
+40 LOCATE X,21:?"U"
+50 WAIT 4
+60 LOCATE A,Y:?" "
+70 LOCATE X,21:?" "
+80 X=X-BTN(LEFT)+BTN(RIGHT)
+90 IF X&lt;0 X=0
+100 IF X&gt;31 X=31
+110 Y=Y+1</div>
+  <div class="checkline"><span class="box"></span><span>10行を入力した</span></div>
+  <div class="checkline"><span class="box"></span><span>20〜50行を入力した</span></div>
+  <div class="checkline"><span class="box"></span><span>60〜110行を入力した</span></div>
+  <div class="tip"><b>意味：</b><code>X</code> はかごの場所、<code>A</code> はいちごの場所、<code>Y</code> は落ちてくる高さです。</div>
+  <div class="footer"><span>いちごキャッチ 前半</span><span>3 / 5</span></div>
+</section>
+
+<section class="page">
+  <h2>3　「いちごキャッチ」後半</h2>
+  <div class="code">120 LOCATE 0,0:?"S=";S;" H=";H
+130 IF Y&lt;21 GOTO 30
+140 IF A=X GOTO 170
+150 H=H-1:BEEP 30,10
+160 IF H&gt;0 GOTO 20
+165 GOTO 200
+170 S=S+1:BEEP 10,5
+180 GOTO 20
+200 CLS:?"GAME OVER"
+210 ?"SCORE=";S
+220 END</div>
+  <p><b>全部入力したら：</b> <code>RUN</code></p>
+  <div class="checkline"><span class="box"></span><span>O が上から落ちてきた</span></div>
+  <div class="checkline"><span class="box"></span><span>← → で U が動いた</span></div>
+  <div class="checkline"><span class="box"></span><span>取ると S が増えた</span></div>
+  <div class="checkline"><span class="box"></span><span>取りのがすと H が減った</span></div>
+  <div class="tip"><b>自分で変える：</b><code>H=3</code> を <code>H=5</code> にすると、5回まで遊べます。<code>WAIT 4</code> を <code>WAIT 2</code> にすると速くなります。</div>
+  <p class="small">次のゲーム「ほしとばくだん」は、ホームページに保存しています。<br>https://mainitika-ship-it.github.io/kenji/history/ichigojam/</p>
+  <div class="footer"><span>いちごキャッチ 後半</span><span>4 / 5</span></div>
+</section>
+
+<section class="page">
+  <h2>4　できた日の記録</h2>
+  <div class="two">
+    <div><h3>子どものひとこと</h3><div class="write"></div></div>
+    <div><h3>大人のひとこと</h3><div class="write"></div></div>
+  </div>
+  <h3>次に作りたいゲーム</h3>
+  <div class="write"></div>
+  <div class="certificate">
+    <p>ゲームを入力し、動かし、考えて変えました。</p>
+    <h2>はじめてのゲーム作家 認定証</h2>
+    <p>なまえ　<span class="line"></span></p>
+    <p>完成日　<span class="line"></span></p>
+  </div>
+  <p class="small muted">うまく動かなかった行も、失敗ではありません。「どこを直すか」を見つけた大切な記録です。</p>
+  <div class="footer"><span>※IchigoJamはjig.jpの登録商標です。</span><span>5 / 5</span></div>
+</section>
+</body>
+</html>
