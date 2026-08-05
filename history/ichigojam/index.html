@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#e84d64">
+  <title>親子のIchigoJam記録｜はじめてのゲームづくり</title>
+  <meta name="description" content="2026年8月5日、親子でIchigoJamのゲームづくりを始めた記録と、入力して遊べる3つのプログラムです。">
+  <style>
+    :root {
+      --berry:#e84d64; --berry-dark:#a92e43; --leaf:#4c9f67; --ink:#263238;
+      --muted:#68767b; --paper:#fffdf7; --cream:#fff4d8; --sky:#eaf6ff;
+      --line:#e6ddd3; --shadow:0 16px 38px rgba(69,45,36,.10);
+      font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic","Noto Sans JP",sans-serif;
+      color-scheme:light;
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{margin:0;background:#fff8f3;color:var(--ink);line-height:1.7}
+    a{color:inherit}
+    button,textarea{font:inherit}
+    .wrap{width:min(100% - 28px,860px);margin-inline:auto}
+    .top{padding:12px 0;background:#fff;border-bottom:1px solid var(--line)}
+    .top a{text-decoration:none;font-weight:800;color:var(--berry-dark)}
+    .hero{padding:48px 0 42px;background:radial-gradient(circle at 88% 14%,#ffe6ed 0 16%,transparent 17%),linear-gradient(145deg,#fff5d8,#fff 58%,#eaf8ee)}
+    .tag{display:inline-block;padding:6px 12px;border-radius:999px;background:#fff;border:1px solid #f1c8d1;color:var(--berry-dark);font-weight:800;font-size:.86rem}
+    h1{margin:14px 0 10px;font-size:clamp(2rem,8vw,3.7rem);line-height:1.15;letter-spacing:-.04em}
+    .lead{margin:0;max-width:700px;color:var(--muted);font-size:1.05rem}
+    .date{margin:18px 0 0;font-weight:900;color:var(--leaf)}
+    main{display:grid;gap:20px;padding:24px 0 56px}
+    .card{padding:clamp(20px,5vw,34px);border:1px solid var(--line);border-radius:24px;background:#fff;box-shadow:var(--shadow)}
+    h2{margin:0 0 12px;font-size:clamp(1.45rem,5vw,2rem);line-height:1.3}
+    h3{margin:0 0 8px}
+    .intro{color:var(--muted);margin-top:0}
+    .timeline{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:18px}
+    .moment{padding:15px;border-radius:18px;background:var(--paper);border:1px solid var(--line)}
+    .moment b{display:block;margin-top:7px;color:var(--berry-dark)}
+    .moment span{font-size:1.6rem}
+    .important{padding:16px 18px;border-radius:16px;background:var(--cream);border:1px solid #efd28a}
+    .important strong{color:#795315}
+    .steps{margin:8px 0 0;padding-left:1.4em}
+    .steps li{margin:5px 0}
+    .game{overflow:hidden;border:1px solid var(--line);border-radius:20px;background:#fff}
+    .game summary{cursor:pointer;list-style:none;padding:18px 20px;font-weight:900;font-size:1.15rem;background:#fffdf7}
+    .game summary::-webkit-details-marker{display:none}
+    .game summary::after{content:"＋";float:right;color:var(--berry)}
+    .game[open] summary::after{content:"−"}
+    .game-body{padding:0 20px 22px}
+    .how{margin:0 0 12px;color:var(--muted)}
+    pre{overflow:auto;margin:12px 0;padding:18px;border-radius:16px;background:#20272a;color:#fff;font:700 1rem/1.65 ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;white-space:pre}
+    .actions{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+    .button{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:10px 16px;border:0;border-radius:13px;background:var(--berry);color:#fff;text-decoration:none;font-weight:900;cursor:pointer}
+    .button.secondary{background:#fff;color:var(--berry-dark);border:1px solid #e5b5bf}
+    .change{margin:14px 0 0;padding:14px 16px;border-radius:15px;background:var(--sky)}
+    .change b{color:#24678e}
+    .notes{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+    label{display:grid;gap:7px;font-weight:900}
+    textarea{width:100%;min-height:120px;padding:14px;border:1px solid #cfc4ba;border-radius:15px;resize:vertical;background:#fff}
+    .small{font-size:.88rem;color:var(--muted)}
+    .checks{display:grid;gap:8px;margin:16px 0}
+    .checks label{display:flex;align-items:center;gap:9px;font-weight:700}
+    input[type=checkbox]{width:20px;height:20px;accent-color:var(--leaf)}
+    footer{padding:24px 0 40px;text-align:center;color:var(--muted);font-size:.86rem}
+    @media(max-width:720px){.timeline{grid-template-columns:1fr 1fr}.notes{grid-template-columns:1fr}pre{font-size:.88rem;padding:15px}.hero{padding-top:34px}}
+    @media print{.top,.actions,.save-note{display:none!important}body{background:#fff}.card,.game{box-shadow:none;break-inside:avoid}details{display:block}details>.game-body{display:block!important}.wrap{width:100%}}
+  </style>
+</head>
+<body>
+  <div class="top"><div class="wrap"><a href="../../index.html">← ホームへ戻る</a></div></div>
+  <header class="hero">
+    <div class="wrap">
+      <span class="tag">🍓 親子の学びの記録</span>
+      <h1>IchigoJamで<br>はじめてのゲームづくり</h1>
+      <p class="lead">遊ぶだけだったゲームが、「数字を変える」「自分で作る」へ変わった日の記録です。</p>
+      <p class="date">2026年8月5日</p>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="card">
+      <h2>今日の4つ</h2>
+      <div class="timeline">
+        <div class="moment"><span>🟩</span><b>見つけた</b>小さな基板にワクワク。</div>
+        <div class="moment"><span>📺</span><b>つないだ</b>テレビへ映す方法を確認。</div>
+        <div class="moment"><span>🎮</span><b>遊んだ</b>弾よけゲームに夢中。</div>
+        <div class="moment"><span>💡</span><b>作りたくなった</b>自分で変えてみたい。</div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>始める前に、これだけ</h2>
+      <div class="important">
+        <strong>今の弾よけゲームを残したいとき</strong>
+        <ol class="steps">
+          <li><code>FILES</code> と入力する</li>
+          <li>空いている番号を大人と確認する</li>
+          <li><code>SAVE 番号</code> で保存する</li>
+        </ol>
+        <p class="small">分からないときは、まだ <code>NEW</code> を入力しません。</p>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>ゲームを入力してみよう</h2>
+      <p class="intro">1行ずつ入力して <b>Enter</b>。全部入ったら <b>RUN</b> です。</p>
+
+      <details class="game" open>
+        <summary>ゲーム1　反応そくど</summary>
+        <div class="game-body">
+          <p class="how">「GO!」が出たら、すぐに何かのキーを押します。</p>
+          <pre id="reaction">10 CLS:?"READY..."
+20 WAIT 60+RND(180)
+30 CLK
+40 CLS:?"GO!":CLT
+50 IF INKEY()=0 GOTO 50
+60 T=TICK()
+70 CLS:?"TIME=";T
+80 BEEP 10,10
+90 END</pre>
+          <div class="actions"><button class="button copy" data-target="reaction">コピー</button></div>
+          <p class="change"><b>変えてみよう：</b>20行の <code>180</code> を大きくすると、GO!を待つ時間が長くなります。</p>
+        </div>
+      </details>
+
+      <details class="game">
+        <summary>ゲーム2　いちごキャッチ（オリジナル）</summary>
+        <div class="game-body">
+          <p class="how">← → で「U」を動かし、落ちてくる「O」を受け止めます。3回取りのがすと終了です。</p>
+          <pre id="catch">10 CLS:X=15:S=0:H=3
+20 A=RND(32):Y=1
+30 LOCATE A,Y:?"O"
+40 LOCATE X,21:?"U"
+50 WAIT 4
+60 LOCATE A,Y:?" "
+70 LOCATE X,21:?" "
+80 X=X-BTN(LEFT)+BTN(RIGHT)
+90 IF X&lt;0 X=0
+100 IF X&gt;31 X=31
+110 Y=Y+1
+120 LOCATE 0,0:?"S=";S;" H=";H
+130 IF Y&lt;21 GOTO 30
+140 IF A=X GOTO 170
+150 H=H-1:BEEP 30,10
+160 IF H&gt;0 GOTO 20
+165 GOTO 200
+170 S=S+1:BEEP 10,5
+180 GOTO 20
+200 CLS:?"GAME OVER"
+210 ?"SCORE=";S
+220 END</pre>
+          <div class="actions"><button class="button copy" data-target="catch">コピー</button></div>
+          <p class="change"><b>変えてみよう：</b>10行の <code>H=3</code> を <code>H=5</code> にすると、5回まで遊べます。</p>
+        </div>
+      </details>
+
+      <details class="game">
+        <summary>ゲーム3　ほしとばくだん（オリジナル）</summary>
+        <div class="game-body">
+          <p class="how">星「*」は取り、爆弾「X」はよけます。← → で「U」を動かします。</p>
+          <pre id="bomb">10 CLS:X=15:S=0:H=3
+20 A=RND(32):Y=1:T=RND(5)
+30 IF T=0 GOTO 50
+40 C=42:GOTO 60
+50 C=88
+60 LOCATE A,Y:?CHR$(C)
+70 LOCATE X,21:?"U"
+80 WAIT 4
+90 LOCATE A,Y:?" "
+100 LOCATE X,21:?" "
+110 X=X-BTN(LEFT)+BTN(RIGHT)
+120 IF X&lt;0 X=0
+130 IF X&gt;31 X=31
+140 Y=Y+1
+150 LOCATE 0,0:?"S=";S;" H=";H
+160 IF Y&lt;21 GOTO 60
+170 IF A&lt;&gt;X GOTO 20
+180 IF T=0 GOTO 210
+190 S=S+1:BEEP 10,5
+200 GOTO 20
+210 H=H-1:BEEP 30,10
+220 IF H&gt;0 GOTO 20
+230 CLS:?"GAME OVER"
+240 ?"SCORE=";S
+250 END</pre>
+          <div class="actions"><button class="button copy" data-target="bomb">コピー</button></div>
+          <p class="change"><b>変えてみよう：</b>20行の <code>RND(5)</code> を <code>RND(3)</code> にすると、爆弾が増えます。</p>
+        </div>
+      </details>
+    </section>
+
+    <section class="card">
+      <h2>できた記録</h2>
+      <div class="checks">
+        <label><input type="checkbox" data-save="reaction-done">反応そくどゲームが動いた</label>
+        <label><input type="checkbox" data-save="catch-done">いちごキャッチが動いた</label>
+        <label><input type="checkbox" data-save="changed">数字を自分で変えてみた</label>
+      </div>
+      <div class="notes">
+        <label>子どものひとこと<textarea data-note="child" placeholder="おもしろかったこと、次に作りたいもの"></textarea></label>
+        <label>大人のひとこと<textarea data-note="adult" placeholder="驚いたこと、成長を感じたこと"></textarea></label>
+      </div>
+      <p class="small save-note">このメモは外へ送られず、この端末のブラウザーにだけ保存されます。</p>
+      <div class="actions">
+        <a class="button secondary" href="print.html">印刷用5ページを開く</a>
+        <button class="button" type="button" onclick="window.print()">このページを印刷</button>
+      </div>
+    </section>
+  </main>
+
+  <footer class="wrap">
+    <p>※IchigoJamはjig.jpの登録商標です。ここに掲載したゲームは、親子の学びのために作成したオリジナル教材です。</p>
+  </footer>
+  <script>
+    document.querySelectorAll('.copy').forEach(button => {
+      button.addEventListener('click', async () => {
+        const text = document.getElementById(button.dataset.target).innerText;
+        await navigator.clipboard.writeText(text);
+        const old = button.textContent;
+        button.textContent = 'コピーしました';
+        setTimeout(() => button.textContent = old, 1400);
+      });
+    });
+    document.querySelectorAll('[data-note]').forEach(el => {
+      const key = 'ichigo-history-note-' + el.dataset.note;
+      el.value = localStorage.getItem(key) || '';
+      el.addEventListener('input', () => localStorage.setItem(key, el.value));
+    });
+    document.querySelectorAll('[data-save]').forEach(el => {
+      const key = 'ichigo-history-check-' + el.dataset.save;
+      el.checked = localStorage.getItem(key) === '1';
+      el.addEventListener('change', () => localStorage.setItem(key, el.checked ? '1' : '0'));
+    });
+  </script>
+</body>
+</html>
