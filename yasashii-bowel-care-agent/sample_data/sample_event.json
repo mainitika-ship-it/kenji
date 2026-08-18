@@ -1,0 +1,10 @@
+{
+  "timestamp": "2026-08-18T19:00:00+09:00",
+  "event": "possible_bowel_event",
+  "confidence": 0.72,
+  "changed_area_percent": 4.0,
+  "relative_amount": "small",
+  "signal_healthy": true,
+  "source": "simulated_test_data",
+  "contains_personal_data": false
+}
