@@ -1,0 +1,41 @@
+name: Yasashii Bowel Care Agent CI
+
+on:
+  push:
+    paths:
+      - "yasashii-bowel-care-agent/**"
+      - ".github/workflows/yasashii-bowel-care-agent.yml"
+  pull_request:
+    paths:
+      - "yasashii-bowel-care-agent/**"
+      - ".github/workflows/yasashii-bowel-care-agent.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: yasashii-bowel-care-agent
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: |
+            yasashii-bowel-care-agent/requirements.txt
+            yasashii-bowel-care-agent/requirements-dev.txt
+      - name: Install dependencies
+        run: python -m pip install -r requirements-dev.txt
+      - name: Compile Python files
+        run: python -m py_compile src/*.py
+      - name: Run QC tests
+        run: pytest -q
+      - name: Exercise dry-run examples
+        run: |
+          python src/agent.py --event sample_data/high_confidence_event.json --dry-run
+          python src/agent.py --event sample_data/uncertain_event.json --dry-run
+          python src/agent.py --event sample_data/bad_signal_event.json --dry-run
