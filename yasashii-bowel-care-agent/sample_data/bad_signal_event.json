@@ -1,0 +1,10 @@
+{
+  "timestamp": "2026-08-18T19:20:00+09:00",
+  "event": "unknown",
+  "confidence": 0.0,
+  "changed_area_percent": 0.0,
+  "relative_amount": "unknown",
+  "signal_healthy": false,
+  "source": "simulated_test_data",
+  "contains_personal_data": false
+}
