@@ -14,6 +14,8 @@ It is an observation and handoff aid, **not a medical diagnostic device**.
 
 Family caregivers may repeatedly need to check whether a bowel movement likely occurred, estimate a relative amount, record the event, and share the information with other caregivers. This project explores how an agent can reduce that repetitive work without removing human judgment or compromising dignity.
 
+The hackathon's ideal agent runs quietly in the background and only surfaces when a person genuinely needs to decide something. That is the product behavior this project is targeting.
+
 ## What is new during the hackathon
 
 A basic local bowel-monitoring prototype existed before the submission period. It is disclosed as pre-existing work.
@@ -21,11 +23,13 @@ A basic local bowel-monitoring prototype existed before the submission period. I
 The hackathon work adds:
 
 - a **Strands Agents SDK** orchestration layer;
+- an explicit Amazon Bedrock model configuration;
 - an explainable confidence and quality-control policy;
 - human confirmation for uncertain observations;
 - safe stop behavior when privacy or signal checks fail;
 - privacy-minimized event logging;
-- daily handoff summaries.
+- daily handoff summaries;
+- a repeatable three-case demo path for PASS / HOLD / STOP.
 
 ## QC method
 
@@ -46,7 +50,7 @@ flowchart LR
     A[Camera frame or safe simulated image] --> B[Local vision layer<br/>Toilet-bowl ROI only<br/>Signal and lighting guard]
     B --> C[Structured event<br/>Timestamp<br/>Confidence<br/>Changed-area %<br/>Relative amount]
     C --> D[Explainable QC control plan<br/>PASS / HOLD / STOP]
-    D --> E[Strands Agents SDK<br/>Select exactly one safe tool]
+    D --> E[Strands Agents SDK<br/>Amazon Bedrock / Nova Lite]
     E -->|PASS| F[Quiet observation record]
     E -->|HOLD| G[Caregiver confirmation]
     E -->|STOP| H[Signal or privacy alert]
@@ -55,16 +59,36 @@ flowchart LR
 
 More detail: [`docs/architecture.md`](docs/architecture.md).
 
+## Default Bedrock model
+
+The project now uses an explicit default instead of relying on the Strands SDK's changing default model:
+
+- model / inference profile: `us.amazon.nova-lite-v1:0`
+- region: `us-east-1`
+- temperature: `0.0` for stable tool selection
+
+Override these without changing code:
+
+```bash
+export YASASHII_BEDROCK_MODEL_ID=us.amazon.nova-lite-v1:0
+export YASASHII_AWS_REGION=us-east-1
+```
+
+AWS credentials are obtained from the standard AWS SDK credential chain. **No AWS keys belong in this repository.**
+
 ## Repository layout
 
 ```text
 yasashii-bowel-care-agent/
 ├── src/
-│   ├── agent.py          # Strands agent and safe action tools
-│   ├── qc_policy.py      # Deterministic, explainable QC control plan
-│   └── handoff.py        # Privacy-minimized daily summary
-├── sample_data/          # Synthetic JSON events only
-├── tests/                # QC policy tests
+│   ├── agent.py              # Strands agent and safe action tools
+│   ├── bedrock_preflight.py  # minimal credential + Bedrock access check
+│   ├── demo.py               # PASS / HOLD / STOP demo runner
+│   ├── handoff.py            # privacy-minimized daily summary
+│   ├── model_config.py       # explicit Bedrock model / region settings
+│   └── qc_policy.py          # deterministic, explainable QC control plan
+├── sample_data/              # synthetic JSON events only
+├── tests/                    # QC, model-config, and handoff tests
 ├── docs/
 ├── requirements.txt
 └── LICENSE
@@ -81,6 +105,8 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
+On Windows PowerShell, activate with `.venv\Scripts\Activate.ps1`.
+
 ### 1. Test the QC logic without AWS
 
 This mode validates the event and prints the decision. It does not call a model or write care records.
@@ -91,25 +117,53 @@ python src/agent.py \
   --dry-run
 ```
 
-Try the three control outcomes:
+Run the three demonstration outcomes together:
 
 ```bash
-python src/agent.py --event sample_data/high_confidence_event.json --dry-run
-python src/agent.py --event sample_data/uncertain_event.json --dry-run
-python src/agent.py --event sample_data/bad_signal_event.json --dry-run
+python src/demo.py --mode qc
 ```
 
-### 2. Run the Strands agent
+Expected control outcomes:
 
-Configure AWS credentials with permission to use the selected Amazon Bedrock model, then run:
+- `high_confidence_event.json` → **PASS**
+- `uncertain_event.json` → **HOLD**
+- `bad_signal_event.json` → **STOP**
+
+### 2. Prepare AWS safely
+
+Before a live model call:
+
+1. enable MFA on the AWS account;
+2. create an AWS Budget / cost alert;
+3. confirm Amazon Bedrock access in `us-east-1`;
+4. use development credentials or a role rather than storing root credentials.
+
+Then run the minimal preflight. This makes one very small Bedrock request and does not print the AWS account ID or ARN:
 
 ```bash
-python src/agent.py \
-  --event sample_data/uncertain_event.json \
-  --runtime-dir runtime
+python src/bedrock_preflight.py
 ```
 
-The Strands agent receives both the structured event and the explainable QC decision, then calls exactly one tool:
+A successful result has:
+
+```json
+{
+  "credentials_ok": true,
+  "bedrock_ok": true,
+  "model_id": "us.amazon.nova-lite-v1:0",
+  "region": "us-east-1"
+}
+```
+
+### 3. Run the live Strands + Bedrock demo
+
+After the preflight succeeds:
+
+```bash
+python src/demo.py --mode live
+```
+
+The Strands agent receives both the structured event and the deterministic QC decision, then calls exactly one tool:
 
 - `record_observation`
 - `request_caregiver_confirmation`
@@ -117,10 +171,10 @@ The Strands agent receives both the structured event and the explainable QC deci
 
 Runtime JSONL files are local and excluded from Git.
 
-### 3. Create a daily handoff summary
+### 4. Create a daily handoff summary
 
 ```bash
-python src/handoff.py --runtime-dir runtime --date 2026-08-18
+python src/handoff.py --runtime-dir runtime/demo --date 2026-08-21
 ```
 
 ## Run tests
@@ -130,7 +184,13 @@ pip install -r requirements-dev.txt
 pytest -q
 ```
 
-Current public QC test set: **5 tests** covering PASS, HOLD, unhealthy signal, personal-data stop, and the rule that `no_event` must not be silently recorded as proof of no bowel movement.
+The public test set covers:
+
+- PASS / HOLD / STOP control behavior;
+- personal-data stop behavior;
+- the rule that `no_event` must not be silently treated as proof of no bowel movement;
+- explicit Bedrock model / region configuration;
+- daily handoff summaries that avoid overclaiming.
 
 ## Privacy and safety
 
@@ -148,14 +208,33 @@ See [`docs/publication_safety.md`](docs/publication_safety.md).
 
 **Pre-existing, disclosed:** local toilet-water-region monitoring, possible-event detection, changed-area measurement, relative amount classification, CSV logging, and privacy/signal guards.
 
-**New during the hackathon:** Strands orchestration, the PASS/HOLD/STOP confidence policy, human-confirmation tools, safe-stop tooling, handoff summaries, and the end-to-end agent workflow.
+**New during the hackathon:** Strands orchestration, explicit Bedrock integration, the PASS/HOLD/STOP confidence policy, human-confirmation tools, safe-stop tooling, handoff summaries, and the end-to-end agent workflow.
+
+## Hackathon submission status
+
+Current status is tracked in [`docs/submission_readiness.md`](docs/submission_readiness.md).
+
+Still required before final submission:
+
+- successfully run and capture the **live Strands + Bedrock** three-case demo;
+- connect the local vision event output to the agent end to end;
+- record a public demo video of at most 5 minutes;
+- confirm the final public repository URL and license presentation;
+- complete the Devpost final submission fields.
+
+Optional score boosters after the core flow works:
+
+- public live demo;
+- Amazon Bedrock AgentCore deployment;
+- builder.aws build-journey article.
 
 ## Built with
 
 - Python
 - Strands Agents SDK
-- Amazon Bedrock model provider
-- Structured computer-vision event inputs
+- Amazon Bedrock
+- Amazon Nova Lite
+- structured computer-vision event inputs
 - JSONL / local event logging
 - Pytest
 
