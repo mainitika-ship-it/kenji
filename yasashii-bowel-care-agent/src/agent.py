@@ -8,7 +8,9 @@ from pathlib import Path
 from typing import Any
 
 from strands import Agent, tool
+from strands.models import BedrockModel
 
+from model_config import resolve_bedrock_settings
 from qc_policy import ObservationEvent, QCDecision, evaluate_event
 
 
@@ -97,8 +99,24 @@ def stop_and_check_signal(timestamp: str, reason: str) -> dict[str, Any]:
     return payload
 
 
-def build_agent() -> Agent:
+def build_agent(
+    model_id: str | None = None,
+    region_name: str | None = None,
+) -> Agent:
+    """Build the Strands agent with an explicit Amazon Bedrock model.
+
+    The default is Amazon Nova Lite through the US geo inference profile in
+    us-east-1. Credentials are obtained from the normal AWS SDK credential
+    chain; no credentials are stored in this repository.
+    """
+    settings = resolve_bedrock_settings(model_id, region_name)
+    bedrock_model = BedrockModel(
+        model_id=settings.model_id,
+        region_name=settings.region_name,
+        temperature=0.0,
+    )
     return Agent(
+        model=bedrock_model,
         system_prompt=(
             "You are a privacy-first family-care observation agent. "
             "You do not diagnose disease and you never convert uncertainty into fact. "
@@ -143,6 +161,16 @@ def main() -> None:
         help="Local directory for logs and confirmation queues",
     )
     parser.add_argument(
+        "--model-id",
+        default=None,
+        help="Bedrock model or inference-profile ID (default: project Nova Lite setting)",
+    )
+    parser.add_argument(
+        "--region",
+        default=None,
+        help="AWS region for Bedrock Runtime (default: us-east-1)",
+    )
+    parser.add_argument(
         "--dry-run",
         action="store_true",
         help="Validate and print the QC decision without calling a model",
@@ -154,16 +182,25 @@ def main() -> None:
     decision = evaluate_event(event, args.confidence_threshold)
 
     if args.dry_run:
+        settings = resolve_bedrock_settings(args.model_id, args.region)
         print(
             json.dumps(
-                {"event": event.to_dict(), "qc_decision": decision.to_dict()},
+                {
+                    "event": event.to_dict(),
+                    "qc_decision": decision.to_dict(),
+                    "bedrock": {
+                        "model_id": settings.model_id,
+                        "region": settings.region_name,
+                        "called": False,
+                    },
+                },
                 ensure_ascii=False,
                 indent=2,
             )
         )
         return
 
-    agent = build_agent()
+    agent = build_agent(args.model_id, args.region)
     result = agent(_build_prompt(event, decision))
     print(result)
 
