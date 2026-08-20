@@ -31,11 +31,17 @@ jobs:
       - name: Install dependencies
         run: python -m pip install -r requirements-dev.txt
       - name: Compile Python files
-        run: python -m py_compile src/*.py
-      - name: Run QC tests
+        run: python -m compileall -q src tests
+      - name: Run unit tests
         run: pytest -q
-      - name: Exercise dry-run examples
+      - name: Exercise individual dry-run examples
         run: |
           python src/agent.py --event sample_data/high_confidence_event.json --dry-run
           python src/agent.py --event sample_data/uncertain_event.json --dry-run
           python src/agent.py --event sample_data/bad_signal_event.json --dry-run
+      - name: Exercise combined QC demo
+        run: |
+          python src/demo.py --mode qc > /tmp/yasashii-demo.txt
+          grep -q 'high_confidence_event.json -> PASS' /tmp/yasashii-demo.txt
+          grep -q 'uncertain_event.json -> HOLD' /tmp/yasashii-demo.txt
+          grep -q 'bad_signal_event.json -> STOP' /tmp/yasashii-demo.txt
