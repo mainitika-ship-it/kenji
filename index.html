@@ -28,6 +28,18 @@
       <button class="progress-step" type="button" data-goto="review"><span>3</span>確認</button>
     </nav>
 
+    <section class="card consultation-manager" aria-labelledby="saved-title">
+      <div class="section-heading">
+        <div>
+          <p class="step-label">この端末の相談</p>
+          <h2 id="saved-title">保存済み相談</h2>
+        </div>
+        <button class="secondary compact-button" type="button" id="new-consultation">新しい相談</button>
+      </div>
+      <p class="section-copy">相談整理票は複数件保存できます。写真そのものは保存されないため、開き直した相談では写真を再選択してください。</p>
+      <div id="consultation-list" class="consultation-list" aria-live="polite"></div>
+    </section>
+
     <form id="repair-form" novalidate>
       <section id="photos" class="card form-section" aria-labelledby="photos-title">
         <div class="section-heading">
@@ -182,6 +194,7 @@
         </div>
 
         <div class="section-actions action-stack">
+          <button class="primary" type="button" id="save-consultation">この相談を登録・更新</button>
           <button class="primary" type="button" id="copy-summary">相談内容をコピー</button>
           <button class="secondary" type="button" id="email-draft">メール下書きを開く</button>
           <button class="ghost" type="button" id="download-json">整理票を保存（JSON）</button>
