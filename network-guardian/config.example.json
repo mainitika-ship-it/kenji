@@ -1,0 +1,29 @@
+{
+  "site_id": "home-lab",
+  "node_id": "router-near-node",
+  "location_label": "router_near",
+  "bind_host": "127.0.0.1",
+  "port": 8765,
+  "probe_interval_sec": 300,
+  "confirm_after_sec": 15,
+  "consecutive_bad_required": 3,
+  "targets": ["1.1.1.1", "8.8.8.8"],
+  "dns_host": "www.cloudflare.com",
+  "http_url": "https://www.cloudflare.com/cdn-cgi/trace",
+  "hub_url": "",
+  "api_token": "",
+  "thresholds": {
+    "gateway_rtt_bad_ms": 80,
+    "gateway_loss_bad_pct": 10,
+    "internet_rtt_bad_ms": 200,
+    "internet_loss_bad_pct": 10,
+    "dns_bad_ms": 1000,
+    "http_bad_ms": 2500,
+    "idle_latency_caution_ms": 80,
+    "idle_latency_bad_ms": 150,
+    "loaded_latency_caution_ms": 100,
+    "loaded_latency_bad_ms": 200,
+    "download_caution_mbps": 10,
+    "upload_caution_mbps": 2
+  }
+}
